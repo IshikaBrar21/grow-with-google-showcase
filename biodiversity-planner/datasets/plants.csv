@@ -1,8 +1,1 @@
-name,scientific_name,native_region,sunlight,water_need,bloom_season,pollinators
-Purple Coneflower,Echinacea purpurea,North America,Full Sun,Low,Summer,"Bees;Butterflies"
-Black-eyed Susan,Rudbeckia hirta,North America,Full Sun,Low,Summer,"Bees;Butterflies"
-Common Milkweed,Asclepias syriaca,North America,Full Sun,Medium,Summer,"Monarch Butterflies;Bees"
-Wild Bergamot,Monarda fistulosa,North America,Full Sun,Medium,Summer,"Bees;Butterflies;Hummingbirds"
-New England Aster,Symphyotrichum novae-angliae,North America,Full Sun,Medium,Fall,"Bees;Butterflies"
-Little Bluestem,Schizachyrium scoparium,North America,Full Sun,Low,Summer-Fall,"Butterflies;Bees"
-Serviceberry,Amelanchier canadensis,North America,Partial Shade,Medium,Spring,"Bees;Birds"
+species_id,common_name,scientific_name,native_range,bloom_start,bloom_end,sun_needs,soil_type,moisture,pollinators_supported,hardiness_zones,source,source_url,notes
