@@ -1,6 +1,9 @@
 
 from fastapi import FastAPI
 from app.models.request_models import RecommendationRequest
+from app.services.location_service import get_coordinates
+from app.services.weather_service import get_weather
+
 
 app  = FastAPI(
         title="Biodiversity Native Planting Planner",
@@ -10,11 +13,23 @@ def home():
     return "You have reached the backend successfully"
  
 @app.post("/recommend")
-def recommend(request: RecommendationRequest):
+async def recommend(request: RecommendationRequest):
+
+    coordinates = get_coordinates(request.city)
+
+    if coordinates is None:
+        return {
+            "error": "Location not found"
+        }
+
+    weather = get_weather(
+        coordinates["latitude"],
+        coordinates["longitude"]
+    )
+
     return {
-            "city":request.city,
-            "garden_size":request.garden_size,
-            "sunlight":request.sunlight,
-            "maintenance":request.maintenance
-            }
+        "location": request.city,
+        "coordinates": coordinates,
+        "weather": weather
+    }
 
