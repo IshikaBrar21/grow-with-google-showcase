@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from app.models.request_models import RecommendationRequest
 from app.services.location_service import get_coordinates
 # from app.services.weather_service import get_weather
@@ -10,6 +11,15 @@ from app.models.response_models import RecommendationResponse
 app  = FastAPI(
         title="Biodiversity Native Planting Planner",
         version="1.0.0")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 @app.get("/")
 def home():
