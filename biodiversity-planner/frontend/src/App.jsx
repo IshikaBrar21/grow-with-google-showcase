@@ -2,21 +2,24 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const [city, setCity] = useState("");
-  const [gardenSize, setGardenSize] = useState("Small");
-  const [sunlight, setSunlight] = useState("Full Sun");
-  const [maintenance, setMaintenance] = useState("Low");
-  const [hasSearched, setHasSearched] = useState(false);
+  const [region, setRegion] = useState("");
+  const [sunlight, setSunlight] = useState("");
+  const [soilType, setSoilType] = useState("");
+  const [moisture, setMoisture] = useState("");
 
+  const [hasSearched, setHasSearched] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // Handle form submission logic here
+
     setLoading(true);
     setError("");
+    setHasSearched(false);
+    setRecommendations([]);
+
     try {
       const response = await fetch("http://127.0.0.1:8000/recommend", {
         method: "POST",
@@ -24,58 +27,68 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          city: city,
-          garden_size: gardenSize,
-          sunlight: sunlight,
-          maintenance: maintenance,
+          region,
+          sunlight,
+          soil_type: soilType,
+          moisture,
         }),
       });
-    if (!response.ok){
-      throw new Error("Network response was not ok");
-    }
-  
-    const data  = await response.json();
-    setRecommendations(data.recommendations);
-    setHasSearched(true);
-    }
-    catch (error) {
+
+      if (!response.ok) {
+        let errorMessage = "Unable to find recommendations.";
+
+        try {
+          const errorData = await response.json();
+
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          }
+        } catch {
+          // Keep default error message if response is not JSON.
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+
+      setRecommendations(data.recommendations);
+      setHasSearched(true);
+    } catch (error) {
       setError(error.message);
       setRecommendations([]);
-    }
-    finally{
+      setHasSearched(true);
+    } finally {
       setLoading(false);
     }
-
   };
+
   return (
     <div className="app">
       <main className="planner">
-        <h1>Biodiversity & Native Planting Planner</h1>
+        <header className="hero">
+          <p className="eyebrow">Native planting planner</p>
 
-        <p className="subtitle">
-          Find native plants that support local pollinators.
-        </p>
+          <h1>Biodiversity & Native Planting Planner</h1>
 
-        <form onSubmit={handleSubmit}>
+          <p className="subtitle">
+            Find native plants suited to your growing conditions
+            and discover which pollinators they can support.
+          </p>
+        </header>
+
+        <form className="planner-form" onSubmit={handleSubmit}>
           <label>
-            Location
-            <input
-              type="text"
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-              placeholder="Enter your city"
-            />
-          </label>
-
-          <label>
-            Garden Size
+            Region
             <select
-              value={gardenSize}
-              onChange={(event) => setGardenSize(event.target.value)}
+              value={region}
+              onChange={(event) => setRegion(event.target.value)}
+              required
             >
-              <option>Small</option>
-              <option>Medium</option>
-              <option>Large</option>
+              <option value="">Select a region</option>
+              <option value="Maryland Piedmont">
+                Maryland Piedmont
+              </option>
             </select>
           </label>
 
@@ -84,22 +97,41 @@ function App() {
             <select
               value={sunlight}
               onChange={(event) => setSunlight(event.target.value)}
+              required
             >
-              <option>Full Sun</option>
-              <option>Part Sun</option>
-              <option>Shade</option>
+              <option value="">Select sunlight</option>
+              <option value="full sun">Full Sun</option>
+              <option value="part sun">Part Sun</option>
+              <option value="shade">Shade</option>
             </select>
           </label>
 
           <label>
-            Maintenance
+            Soil Type
             <select
-              value={maintenance}
-              onChange={(event) => setMaintenance(event.target.value)}
+              value={soilType}
+              onChange={(event) => setSoilType(event.target.value)}
+              required
             >
-              <option>Low</option>
-              <option>Medium</option>
-              <option>High</option>
+              <option value="">Select soil type</option>
+              <option value="well-drained">Well-drained</option>
+              <option value="clay">Clay</option>
+              <option value="sandy">Sandy</option>
+              <option value="loamy">Loamy</option>
+            </select>
+          </label>
+
+          <label>
+            Moisture
+            <select
+              value={moisture}
+              onChange={(event) => setMoisture(event.target.value)}
+              required
+            >
+              <option value="">Select moisture</option>
+              <option value="dry">Dry</option>
+              <option value="medium">Medium</option>
+              <option value="wet">Wet</option>
             </select>
           </label>
 
@@ -107,61 +139,113 @@ function App() {
             Find My Plants
           </button>
         </form>
-        {loading && <p>Finding suitable native plants...</p>}
 
-{error && <p className="error">{error}</p>}
-
-{!loading && !error && recommendations.length > 0 && (
-  <section className="results">
-    <h2>Recommended Plants</h2>
-
-    <div className="plant-list">
-      {recommendations.map((plant) => (
-        <article className="plant-card" key={plant.species_id}>
-          <h3>{plant.common_name}</h3>
-
-          <p className="scientific-name">
-            {plant.scientific_name}
+        {loading && (
+          <p className="loading-message">
+            Finding suitable native plants...
           </p>
+        )}
 
-          <p>
-            <strong>Bloom:</strong>{" "}
-            {plant.bloom_start} – {plant.bloom_end}
+        {error && (
+          <p className="error">
+            {error}
           </p>
+        )}
 
-          <p>
-            <strong>Sunlight:</strong> {plant.sun_needs}
-          </p>
+        {!loading && !error && recommendations.length > 0 && (
+          <section className="results">
+            <div className="results-heading">
+              <div>
+                <p className="eyebrow">Your results</p>
+                <h2>Top plant picks</h2>
+              </div>
 
-          <p>
-            <strong>Soil:</strong> {plant.soil_type}
-          </p>
+              <p className="result-count">
+                {recommendations.length} plants
+              </p>
+            </div>
 
-          <p>
-            <strong>Moisture:</strong> {plant.moisture}
-          </p>
+            <div className="plant-carousel">
+              {recommendations.map((plant) => (
+                <article
+                  className="plant-card"
+                  key={plant.species_id}
+                >
+                  <div className="plant-card-header">
+                    <div>
+                      <h3>{plant.common_name}</h3>
 
-          <p>
-            <strong>Hardiness:</strong> {plant.hardiness_zones}
-          </p>
+                      <p className="scientific-name">
+                        {plant.scientific_name}
+                      </p>
+                    </div>
+                  </div>
 
-          <p>
-            <strong>Pollinators:</strong>{" "}
-            {plant.pollinators_supported.join(", ")}
-          </p>
-        </article>
-      ))}
-    </div>
-  </section>
-)}
-{!loading &&
-  !error &&
-  recommendations.length === 0 &&
-  hasSearched && (
-    <p className="empty-message">
-      No suitable plants found for this location yet.
-    </p>
-  )}
+                  <div className="bloom">
+                    <span className="bloom-label">Bloom period</span>
+                    <strong>
+                      {plant.bloom_start} – {plant.bloom_end}
+                    </strong>
+                  </div>
+
+                  <div className="plant-details">
+                    <div className="detail">
+                      <span className="detail-label">☀ Sun</span>
+                      <span>{plant.sun_needs}</span>
+                    </div>
+
+                    <div className="detail">
+                      <span className="detail-label">🌱 Soil</span>
+                      <span>{plant.soil_type}</span>
+                    </div>
+
+                    <div className="detail">
+                      <span className="detail-label">💧 Moisture</span>
+                      <span>{plant.moisture}</span>
+                    </div>
+
+                    <div className="detail">
+                      <span className="detail-label">❄ Hardiness</span>
+                      <span>{plant.hardiness_zones}</span>
+                    </div>
+                  </div>
+
+                  <div className="pollinators">
+                    <span className="detail-label">
+                      Pollinators supported
+                    </span>
+
+                    <div className="pollinator-list">
+                      {plant.pollinators_supported.map(
+                        (pollinator) => (
+                          <span
+                            className="pollinator-tag"
+                            key={pollinator}
+                          >
+                            {pollinator}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="native-label">
+                    Native to {plant.native_range}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {!loading &&
+          !error &&
+          recommendations.length === 0 &&
+          hasSearched && (
+            <p className="empty-message">
+              No suitable plants found for your selected conditions.
+            </p>
+          )}
       </main>
     </div>
   );
