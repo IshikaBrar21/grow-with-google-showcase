@@ -3,7 +3,8 @@ import pandas as pd
 
 
 DATASET_PATH = (
-    Path(__file__).resolve().parents[3]
+    Path(__file__).resolve().parents[5]
+    / "Alexis-Paitoo"
     / "datasets"
     / "plants.csv"
 )
