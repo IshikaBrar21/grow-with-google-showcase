@@ -212,12 +212,6 @@ The project is organized by team member contribution while keeping the applicati
 **Final repository tree:**
 
 ```text
-[INSERT FINAL TREE OUTPUT HERE]
-```
-
-The current organization follows this general structure:
-
-```text
 └── biodiversity-planner
     ├── Alexis-Paitoo
     │   └── datasets
