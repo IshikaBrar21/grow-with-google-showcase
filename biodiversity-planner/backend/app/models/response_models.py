@@ -17,7 +17,8 @@ class PlantRecommendation(BaseModel):
     score: int
 
 class RecommendationResponse(BaseModel):
-    location: str
-    latitude: float
-    longitude: float
+    region: str
+    sunlight: str
+    soil_type: str
+    moisture: str
     recommendations: list[PlantRecommendation]

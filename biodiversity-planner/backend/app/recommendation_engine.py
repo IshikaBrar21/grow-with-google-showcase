@@ -14,14 +14,8 @@ MONTHS = {
 }
 
 
-def sunlight_matches(user_sunlight: str, plant_sunlight: str) -> bool:
-    user_sunlight = user_sunlight.lower()
-    plant_sunlight = plant_sunlight.lower()
-
-    if user_sunlight == plant_sunlight:
-        return True
-
-    return False
+def value_matches(user_value: str, plant_value: str) -> bool:
+    return user_value.strip().lower() == plant_value.strip().lower()
 
 
 def bloom_duration(bloom_start: str, bloom_end: str) -> int:
@@ -34,51 +28,76 @@ def bloom_duration(bloom_start: str, bloom_end: str) -> int:
     if end >= start:
         return end - start + 1
 
-    # Handles a bloom period crossing December
+    # Handles a bloom period crossing December.
     return (12 - start + 1) + end
 
 
-def calculate_score(plant, user_sunlight: str) -> int:
+def calculate_score(
+    plant,
+    user_sunlight: str,
+    user_soil_type: str,
+    user_moisture: str,
+) -> int:
+
     score = 0
 
-    if sunlight_matches(user_sunlight, plant["sun_needs"]):
-        score += 40
+    # Growing-condition compatibility
+    if value_matches(user_sunlight, plant["sun_needs"]):
+        score += 30
 
+    if value_matches(user_soil_type, plant["soil_type"]):
+        score += 25
+
+    if value_matches(user_moisture, plant["moisture"]):
+        score += 20
+
+    # Pollinator diversity
     pollinators = [
         p.strip()
         for p in str(plant["pollinators_supported"]).split(",")
         if p.strip()
     ]
 
-    # Plants with larger support for pollinators should be scored higher
-    # The maximum score for pollinator support is capped at 30 points
-    score += min(len(pollinators) * 10, 30)
+    # Maximum of 15 points.
+    score += min(len(pollinators) * 5, 15)
 
-    # Longer bloom periods are beneficial for pollinators and should be scored higher
+    # Longer bloom periods receive a small bonus.
     duration = bloom_duration(
         str(plant["bloom_start"]),
         str(plant["bloom_end"])
     )
-    score += min(duration * 3, 30)
+
+    # Maximum of 10 points.
+    score += min(duration * 2, 10)
 
     return score
 
 
-def recommend_plants(plants, user_sunlight: str, limit: int = 5):
+def recommend_plants(
+    plants,
+    region: str,
+    user_sunlight: str,
+    user_soil_type: str,
+    user_moisture: str,
+    limit: int = 5,
+):
 
-    # Our dataset is specifically scoped to the Maryland Piedmont.
-    # Plants outside that native range should not be recommended.
+    # The current dataset is scoped to the Maryland Piedmont.
+    # This allows the region to be expanded later when more regional
+    # datasets become available.
     native_plants = plants[
-        plants["native_range"].str.lower() == "maryland piedmont"
+        plants["native_range"].str.lower() == region.strip().lower()
     ]
 
     recommendations = []
 
-    for _,plant in native_plants.iterrows():
+    for _, plant in native_plants.iterrows():
 
         score = calculate_score(
             plant,
-            user_sunlight
+            user_sunlight,
+            user_soil_type,
+            user_moisture,
         )
 
         pollinators = [
