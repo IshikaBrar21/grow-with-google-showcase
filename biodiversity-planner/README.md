@@ -521,6 +521,14 @@ The project brings together skills across software development, data analytics, 
 
 [▶️ Watch the Application Walkthrough](./docs/biodiversity-planner-webapp.mov)
 
+### Application Preview
+
+<img src="./docs/screenshot-1.png" alt="User Input" width="500">
+
+<img src="./docs/screenshot-2.png" alt="User Input" width="500">
+
+<img src="./docs/screenshot-3.png" alt="User Input" width="500">
+
 ---
 
 ## 📌 Project Status
