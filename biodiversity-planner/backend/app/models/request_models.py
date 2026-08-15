@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class RecommendationRequest(BaseModel):
-    city: str
-    garden_size: str
+    region: str
+    soil_type: str
     sunlight: str
-    maintenance: str
+    moisture: str
